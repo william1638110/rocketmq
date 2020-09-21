@@ -79,6 +79,7 @@ public class NamesrvStartup {
             return null;
         }
 
+        //Stepl ： 首先来解析配置文件 ， 需要填充 NameServerConfig 、 NettyServerConfig 属性值。
         final NamesrvConfig namesrvConfig = new NamesrvConfig();
         final NettyServerConfig nettyServerConfig = new NettyServerConfig();
         nettyServerConfig.setListenPort(9876);
@@ -136,13 +137,17 @@ public class NamesrvStartup {
         if (null == controller) {
             throw new IllegalArgumentException("NamesrvController is null");
         }
-
+        //Step2 ：根据启动属性创建 NamesrvController 实例，并初始化该实例 ， NameServerController实例为 NameServer核心控制器。
         boolean initResult = controller.initialize();
         if (!initResult) {
             controller.shutdown();
             System.exit(-3);
         }
 
+        //Step3 ：注册 JVM 钩子函数并启动服务器，以便监昕 Broker 、消息生产者的网络请求
+        /**
+         * 如果代码中使用了线程池，一种优雅停 机的方式就是注册一个 JVM 钩子函数， 在 JVM 进程关闭之前，先将线程池关闭 ，及时释 放资源 。
+         */
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
