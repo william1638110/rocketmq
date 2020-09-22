@@ -77,7 +77,7 @@ public class NamesrvController {
 
         /**
          *   加载 KV 配置，创建 NettyServer 网络处理对象，然后开启两个定 时任务，在 RocketMQ 中此类定时任务统称为心跳检测 。
-         *   定时任务 I: NameServer 每隔 I Os 扫描一次 Broker ， 移除处于不激活状态的 Broker
+         *   定时任务 I: NameServer 每隔 1Os 扫描一次 Broker ， 移除处于不激活状态的 Broker
          *   定时任务 2: names巳rver 每隔 10 分钟打印一次 KV 配置
          */
         this.kvConfigManager.load();

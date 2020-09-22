@@ -111,6 +111,9 @@ public class BrokerOuterAPI {
         this.remotingClient.updateNameServerAddressList(lst);
     }
 
+    /**
+     * 该方法主要是遍历 NameServer 列表， Broker 消息服务器依次向 NameServer 发送心跳包
+     */
     public List<RegisterBrokerResult> registerBrokerAll(
         final String clusterName,
         final String brokerAddr,
@@ -125,7 +128,7 @@ public class BrokerOuterAPI {
 
         final List<RegisterBrokerResult> registerBrokerResultList = Lists.newArrayList();
         List<String> nameServerAddressList = this.remotingClient.getNameServerAddressList();
-        if (nameServerAddressList != null && nameServerAddressList.size() > 0) {
+        if (nameServerAddressList != null && nameServerAddressList.size() > 0) {// 遍历所有 NameServer 列表
 
             final RegisterBrokerRequestHeader requestHeader = new RegisterBrokerRequestHeader();
             requestHeader.setBrokerAddr(brokerAddr);
@@ -147,6 +150,7 @@ public class BrokerOuterAPI {
                     @Override
                     public void run() {
                         try {
+                            // 分别向 NameServer 注册
                             RegisterBrokerResult result = registerBroker(namesrvAddr,oneway, timeoutMills,requestHeader,body);
                             if (result != null) {
                                 registerBrokerResultList.add(result);
@@ -182,6 +186,7 @@ public class BrokerOuterAPI {
         RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.REGISTER_BROKER, requestHeader);
         request.setBody(body);
 
+        //Broker 消息服务器依次向 NameServer 发送心跳包
         if (oneway) {
             try {
                 this.remotingClient.invokeOneway(namesrvAddr, request, timeoutMills);
